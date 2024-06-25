@@ -4,29 +4,29 @@ const Post = require('./posts-model');
 
 const router = express.Router();
 
-router.get('/', (req,res) => {
+router.get('/', (req, res) => {
     Post.find()
-    .then(found => {
-        res.json(found)
-    })
-    .catch(err => {
-        res.status(500).json({
-            message: "This posts information could not be retrieved",
-            err: err.message,
-            stack: err.stack,
+        .then(found => {
+            res.json(found)
         })
-    })
+        .catch(err => {
+            res.status(500).json({
+                message: "This posts information could not be retrieved",
+                err: err.message,
+                stack: err.stack,
+            })
+        })
 })
-router.get('/:id', async (req,res) => {
+router.get('/:id', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id)
         if (!post) {
             res.status(404).json({
                 message: 'This post with the specified ID does not exist',
-        })
-    } else {
-        res.json(post)
-    }
+            })
+        } else {
+            res.json(post)
+        }
     } catch (err) {
         res.status(500).json({
             message: "This post information could not be retrieved",
@@ -35,7 +35,8 @@ router.get('/:id', async (req,res) => {
         })
     }
 })
-router.post('/', (req,res) => {
+
+router.post('/', (req, res) => {
     const { title, contents } = req.body
     if (!title || !contents) {
         res.status(400).json({
@@ -43,23 +44,24 @@ router.post('/', (req,res) => {
         })
     } else {
         Post.insert({ title, contents })
-        .then(({ id }) => {
-            return Post.findById(id)
+            .then(({ id }) => {
+                return Post.findById(id)
             })
-        .then(newPost => {
-            res.status(201).json(newPost)
-        })
-        .catch(err => {
-            res.status(500).json({
-                message: "There was an error while saving the post to the databased",
-                err: err.message,
-                stack: err.stack,
+            .then(newPost => {
+                res.status(201).json(newPost)
             })
-        })
+            .catch(err => {
+                res.status(500).json({
+                    message: "There was an error while saving the post to the databased",
+                    err: err.message,
+                    stack: err.stack,
+                })
+            })
     }
 })
-router.delete('/:id', async (req,res) => {
-    try{
+
+router.delete('/:id', async (req, res) => {
+    try {
         const post = await Post.findById(req.params.id)
         if (!post) {
             res.status(404).json({
@@ -77,10 +79,45 @@ router.delete('/:id', async (req,res) => {
         })
     }
 })
-router.put('/:id', (req,res) => {
-    
+
+router.put('/:id', (req, res) => {
+    const { title, contents } = req.body
+    if (!title || !contents) {
+        res.status(400).json({
+            message: 'Please provide title and contents for the post',
+        })
+    } else {
+        Post.findById(req.params.id)
+            .then(stuff => {
+                if (!stuff) {
+                    res.status(404).json({
+                        message: "The post with the specified ID does not exist",
+                    })
+                } else {
+                    return Post.update(req.params.id, req.body)
+                }
+            })
+            .then(updated => {
+                if (updated) {
+                    return Post.findById(req.params.id)
+                }
+            })
+            .then(post => {
+                if (post) {
+                    res.json(post)
+                }
+            })
+            .catch(err => {
+                res.status(500).json({
+                    message: "The post information could not be received",
+                    err: err.message,
+                    stack: err.stack,
+                })
+            })
+    }
 })
-router.get('/:id/messages', (req,res) => {
+
+router.get('/:id/messages', (req, res) => {
     
 })
 
