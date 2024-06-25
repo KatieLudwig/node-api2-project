@@ -146,7 +146,7 @@ describe('server.js', () => {
   })
   describe('[GET] /api/posts/:id/comments', () => {
     test('[15] reponds with a 404 if the post is not found', async () => {
-      let res = await request(server).get('/api/posts/66/comments')
+      let res = await request(server).get('/api/posts/comments')
       expect(res.status).toBe(404)
       expect(res.body.message).toMatch(/does not exist/i)
     }, 750)
